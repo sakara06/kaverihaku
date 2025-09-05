@@ -6,7 +6,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Matches - FriendFinder</title>
+    <link rel="icon" href="/accessories/media/favicon.ico" type="image/x-icon">
+    <title>Matchit - Kaverit</title>
     <style>
         * {
             margin: 0;
@@ -42,6 +43,11 @@
             color: #667eea;
             margin-bottom: 10px;
         }
+	  .logo-img {
+	    width: 20rem;
+	    height: auto;
+	  }
+
 
         .nav {
             display: flex;
@@ -219,24 +225,26 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">💫 FriendFinder</div>
+	<div class="logo">
+	  <img src="/accessories/media/logo.png" alt="Kaverit logo" class="logo-img">
+	</div>
             <div class="nav">
-                <a href="/discover">Discover</a>
-                <a href="/matches" class="active">Matches</a>
-                <a href="/profile">Profile</a>
-                <a href="#" onclick="logout()">Logout</a>
+                <a href="/discover">Löydä</a>
+                <a href="/matches" class="active">Matchit</a>
+                <a href="/profile">Tili</a>
+                <a href="#" onclick="logout()">Kirjaudu ulos</a>
             </div>
         </div>
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p>Loading your matches...</p>
+            <p>Ladataan Matchejasi...</p>
         </div>
 
         <div id="matchesContent" style="display: none;">
             <div class="match-stats" id="matchStats">
                 <div class="stats-number" id="matchCount">0</div>
-                <div class="stats-label">Total Matches</div>
+                <div class="stats-label">Matchit yhteensä</div>
             </div>
 
             <div class="matches-grid" id="matchesGrid">
@@ -245,9 +253,9 @@
         </div>
 
         <div class="no-matches" id="noMatches" style="display: none;">
-            <h3>🔍 No matches yet</h3>
-            <p>Start swiping to find people who are interested in connecting with you!</p>
-            <a href="/discover" class="discover-btn">Start Discovering</a>
+            <h3>🔍 Ei vielä Matcheja</h3>
+            <p>Aloita Swaippaaminen Matchien löytämiseksi!</p>
+            <a href="/discover" class="discover-btn">Löydä</a>
         </div>
     </div>
 
@@ -276,11 +284,11 @@
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
             if (diffDays === 0) {
-                return 'Today';
+                return 'Tänään';
             } else if (diffDays === 1) {
-                return 'Yesterday';
+                return 'Eilen';
             } else if (diffDays < 7) {
-                return `${diffDays} days ago`;
+                return `${diffDays} päivää sitten`;
             } else {
                 return date.toLocaleDateString();
             }
@@ -299,8 +307,8 @@
                     }
                 </div>
                 <div class="match-name">${match.name}</div>
-                <div class="match-age">${match.age} years old</div>
-                <div class="match-date">Matched ${formatDate(match.created_at)}</div>
+                <div class="match-age">${match.age}-vuotta vanha</div>
+                <div class="match-date">Matchasi ${formatDate(match.created_at)}</div>
             `;
 
             return card;
@@ -324,7 +332,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to load matches');
+                    throw new Error('Matchien lataus epäonnistui');
                 }
 
                 const matches = await response.json();

@@ -5,6 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/accessories/media/favicon.ico" type="image/x-icon">
     <title>Profile - FriendFinder</title>
     <style>
         * {
@@ -40,6 +41,10 @@
             color: #667eea;
             margin-bottom: 10px;
         }
+	  .logo-img {
+	    width: 20rem;
+	    height: auto;
+	  }
 
         .nav {
             display: flex;
@@ -242,18 +247,20 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">💫 FriendFinder</div>
+	<div class="logo">
+	  <img src="/accessories/media/logo.png" alt="Kaverit logo" class="logo-img">
+	</div>
             <div class="nav">
-                <a href="/discover">Discover</a>
-                <a href="/matches">Matches</a>
-                <a href="/profile" class="active">Profile</a>
-                <a href="#" onclick="logout()">Logout</a>
+                <a href="/discover">Löydä</a>
+                <a href="/matches">Matchit</a>
+                <a href="/profile" class="active">Tili</a>
+                <a href="#" onclick="logout()">Kirjaudu ulos</a>
             </div>
         </div>
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p>Loading...</p>
+            <p>Ladataan...</p>
         </div>
 
         <div id="profileContent" style="display: none;">
@@ -270,26 +277,26 @@
                     </div>
                     <div class="file-input-wrapper">
                         <input type="file" id="photoInput" class="file-input" accept="image/*">
-                        <label for="photoInput" class="file-input-label">Choose Photo</label>
+                        <label for="photoInput" class="file-input-label">Valitse kuva</label>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="name">Name</label>
+                    <label for="name">Nimi</label>
                     <input type="text" id="name" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="age">Age</label>
+                    <label for="age">Ikä</label>
                     <input type="number" id="age" min="18" max="100" required>
                 </div>
 
                 <div class="form-group">
                     <label for="bio">Bio</label>
-                    <textarea id="bio" placeholder="Tell people about yourself..."></textarea>
+                    <textarea id="bio" placeholder="Kerro muille itsestäsi..."></textarea>
                 </div>
 
-                <button type="submit" class="btn" id="saveBtn">Save Profile</button>
+                <button type="submit" class="btn" id="saveBtn">Tallenna</button>
                 <div class="error" id="error"></div>
                 <div class="success" id="success"></div>
             </form>
@@ -346,15 +353,15 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to load profile');
+                    throw new Error('Tilin lataus epäonnistui');
                 }
 
                 const profile = await response.json();
                 currentUser = profile;
 
                 // Update user info
-                document.getElementById('userName').textContent = profile.name || 'No name set';
-                document.getElementById('userAge').textContent = profile.age ? `${profile.age} years old` : 'Age not set';
+                document.getElementById('userName').textContent = profile.name || 'Ei nimeä asetettu';
+                document.getElementById('userAge').textContent = profile.age ? `${profile.age}-vuotta vanha` : 'Ei ikää asetettu';
 
                 // Fill form
                 document.getElementById('name').value = profile.name || '';
@@ -434,18 +441,18 @@
                 
                 // Update user info display
                 document.getElementById('userName').textContent = updatedProfile.name;
-                document.getElementById('userAge').textContent = `${updatedProfile.age} years old`;
+                document.getElementById('userAge').textContent = `${updatedProfile.age}-vuotta vanha`;
 
                 // Update localStorage
                 localStorage.setItem('user', JSON.stringify(updatedProfile));
 
-                showSuccess('Profile updated successfully!');
+                showSuccess('Tili päivitetty!');
 
             } catch (error) {
                 showError(error.message);
             } finally {
                 document.getElementById('saveBtn').disabled = false;
-                document.getElementById('saveBtn').textContent = 'Save Profile';
+                document.getElementById('saveBtn').textContent = 'Tallenna';
             }
         });
 

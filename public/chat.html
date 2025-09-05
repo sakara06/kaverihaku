@@ -6,6 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/accessories/media/favicon.ico" type="image/x-icon">
     <title>Chat - FriendFinder</title>
     <style>
         * {
@@ -252,13 +253,15 @@
             }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 780px) {
             .message {
                 max-width: 85%;
             }
             
             .chat-input-container {
                 padding: 12px 15px;
+	        margin-bottom: 25%;
+                
             }
         }
     </style>
@@ -270,7 +273,7 @@
             <div class="chat-user-photo" id="chatUserPhoto">
                 <div class="photo-placeholder">👤</div>
             </div>
-            <div class="chat-user-name" id="chatUserName">Loading...</div>
+            <div class="chat-user-name" id="chatUserName">Ladataan...</div>
         </div>
     </div>
 
@@ -360,8 +363,8 @@
                 if (messages.length === 0) {
                     chatMessages.innerHTML = `
                         <div class="no-messages">
-                            <h3>👋 Start the conversation!</h3>
-                            <p>Say hello to break the ice.</p>
+                            <h3>👋 Aloita keskustelu!</h3>
+                            <p>Sano "Moi" ja murra jää!.</p>
                         </div>
                     `;
                 } else {
@@ -379,8 +382,8 @@
                 const chatMessages = document.getElementById('chatMessages');
                 chatMessages.innerHTML = `
                     <div class="no-messages">
-                        <h3>⚠️ Error loading messages</h3>
-                        <p>Please try refreshing the page.</p>
+                        <h3>⚠️ Virhe viestejä ladatessa</h3>
+                        <p>Kokeile ladata sivu uudelleen!.</p>
                     </div>
                 `;
             }

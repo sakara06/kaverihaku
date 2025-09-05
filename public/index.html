@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FriendFinder - Connect with New People</title>
+    <link rel="icon" href="/accessories/media/favicon.ico" type="image/x-icon">
+    <title>Kaverit - Löydä uskomattomia tyyppejä!</title>
     <style>
         * {
             margin: 0;
@@ -36,7 +37,16 @@
             font-weight: bold;
             color: #667eea;
             margin-bottom: 10px;
-        }
+	    display: flex;
+	    flex-direction: column;
+	    align-items: center;
+	    gap: 10px;
+	  }
+
+	  .logo-img {
+	    width: 20rem;
+	    height: auto;
+	  }
 
         .tagline {
             color: #666;
@@ -155,58 +165,60 @@
 </head>
 <body>
     <div class="container">
-        <div class="logo">💫 FriendFinder</div>
-        <p class="tagline">Discover meaningful connections</p>
+	<div class="logo">
+	  <img src="/accessories/media/logo.png" alt="Kaverit logo" class="logo-img">
+	</div>
+        <p class="tagline">Löydä uskomattomia tyyppejä!</p>
 
         <!-- Login Form -->
         <div id="loginForm">
             <form id="loginFormElement">
                 <div class="form-group">
-                    <label for="loginEmail">Email</label>
+                    <label for="loginEmail">Sähköposti</label>
                     <input type="email" id="loginEmail" required>
                 </div>
                 <div class="form-group">
-                    <label for="loginPassword">Password</label>
+                    <label for="loginPassword">Salasana</label>
                     <input type="password" id="loginPassword" required>
                 </div>
-                <button type="submit" class="btn" id="loginBtn">Sign In</button>
+                <button type="submit" class="btn" id="loginBtn">Kirjaudu sisään</button>
                 <div class="loading" id="loginLoading">
                     <div class="spinner"></div>
                 </div>
                 <div class="error" id="loginError"></div>
             </form>
-            <p>Don't have an account? <span class="toggle-form" onclick="toggleForm()">Sign up</span></p>
+            <p>Eikö sinulla vielä ole tiliä? <span class="toggle-form" onclick="toggleForm()">Luo tili</span></p>
         </div>
 
         <!-- Register Form -->
         <div id="registerForm">
             <form id="registerFormElement">
                 <div class="form-group">
-                    <label for="registerName">Name</label>
+                    <label for="registerName">Nimi</label>
                     <input type="text" id="registerName" required>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="registerAge">Age</label>
+                        <label for="registerAge">Ikä</label>
                         <input type="number" id="registerAge" min="18" max="100" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="registerEmail">Email</label>
+                    <label for="registerEmail">Sähköposti</label>
                     <input type="email" id="registerEmail" required>
                 </div>
                 <div class="form-group">
-                    <label for="registerPassword">Password</label>
+                    <label for="registerPassword">Salasana</label>
                     <input type="password" id="registerPassword" minlength="6" required>
                 </div>
-                <button type="submit" class="btn" id="registerBtn">Create Account</button>
+                <button type="submit" class="btn" id="registerBtn">Luo tili</button>
                 <div class="loading" id="registerLoading">
                     <div class="spinner"></div>
                 </div>
                 <div class="error" id="registerError"></div>
                 <div class="success" id="registerSuccess"></div>
             </form>
-            <p>Already have an account? <span class="toggle-form" onclick="toggleForm()">Sign in</span></p>
+            <p>Onko sinulla jo tili? <span class="toggle-form" onclick="toggleForm()">Kirjaudu sisään</span></p>
         </div>
     </div>
 
@@ -280,7 +292,7 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    throw new Error(data.error || 'Login failed');
+                    throw new Error(data.error || 'Kirjautuminen epäonnistui');
                 }
                 
                 // Store token and user data
@@ -324,7 +336,7 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    throw new Error(data.error || 'Registration failed');
+                    throw new Error(data.error || 'Tilin luonti epäonnistui');
                 }
                 
                 // Store token and user data
@@ -333,7 +345,7 @@
                 
                 // Show success message
                 const successEl = document.getElementById('registerSuccess');
-                successEl.textContent = 'Account created successfully! Redirecting...';
+                successEl.textContent = 'Tilisi on luotu onnistuneesti! Ohjataan...';
                 successEl.style.display = 'block';
                 
                 // Redirect after a short delay

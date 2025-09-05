@@ -45,7 +45,7 @@ const upload = multer({
         if (file.mimetype.startsWith('image/')) {
             cb(null, true);
         } else {
-            cb(new Error('Only image files are allowed!'), false);
+            cb(new Error('Vain kuvat on sallittuja!'), false);
         }
     }
 });
@@ -124,7 +124,7 @@ app.post('/api/register', async (req, res) => {
         const { email, password, name, age } = req.body;
 
         if (!email || !password || !name || !age) {
-            return res.status(400).json({ error: 'All fields are required' });
+            return res.status(400).json({ error: 'Kaikki kohdat vaaditaan' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -135,9 +135,9 @@ app.post('/api/register', async (req, res) => {
             function(err) {
                 if (err) {
                     if (err.message.includes('UNIQUE constraint failed')) {
-                        return res.status(400).json({ error: 'Email already exists' });
+                        return res.status(400).json({ error: 'Sähköposti on jo käytössä' });
                     }
-                    return res.status(500).json({ error: 'Database error' });
+                    return res.status(500).json({ error: 'Tietokannan virhe' });
                 }
 
                 const token = jwt.sign({ id: this.lastID, email }, JWT_SECRET);
@@ -148,7 +148,7 @@ app.post('/api/register', async (req, res) => {
             }
         );
     } catch (error) {
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ error: 'Palvelin virhe' });
     }
 });
 
@@ -157,7 +157,7 @@ app.post('/api/login', async (req, res) => {
         const { email, password } = req.body;
 
         if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password are required' });
+            return res.status(400).json({ error: 'Sähköposti ja salasana vaaditaan' });
         }
 
         db.get(
@@ -165,7 +165,7 @@ app.post('/api/login', async (req, res) => {
             [email],
             async (err, user) => {
                 if (err) {
-                    return res.status(500).json({ error: 'Database error' });
+                    return res.status(500).json({ error: 'Tietokannan virhe' });
                 }
 
                 if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -190,7 +190,7 @@ app.post('/api/login', async (req, res) => {
             }
         );
     } catch (error) {
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({ error: 'Palvelin virhe' });
     }
 });
 
@@ -201,10 +201,10 @@ app.get('/api/profile', authenticateToken, (req, res) => {
         [req.user.id],
         (err, user) => {
             if (err) {
-                return res.status(500).json({ error: 'Database error' });
+                return res.status(500).json({ error: 'Tietokannan virhe' });
             }
             if (!user) {
-                return res.status(404).json({ error: 'User not found' });
+                return res.status(404).json({ error: 'Käyttäjää ei löytynyt' });
             }
             res.json(user);
         }
@@ -232,7 +232,7 @@ app.put('/api/profile', authenticateToken, upload.single('photo'), (req, res) =>
 
     db.run(query, params, function(err) {
         if (err) {
-            return res.status(500).json({ error: 'Database error' });
+            return res.status(500).json({ error: 'Tietokannan virhe' });
         }
 
         // Get updated user data
@@ -241,7 +241,7 @@ app.put('/api/profile', authenticateToken, upload.single('photo'), (req, res) =>
             [req.user.id],
             (err, user) => {
                 if (err) {
-                    return res.status(500).json({ error: 'Database error' });
+                    return res.status(500).json({ error: 'Tietokannan virhe' });
                 }
                 res.json(user);
             }
@@ -265,7 +265,7 @@ app.get('/api/discover', authenticateToken, (req, res) => {
 
     db.all(query, [req.user.id, req.user.id], (err, users) => {
         if (err) {
-            return res.status(500).json({ error: 'Database error' });
+            return res.status(500).json({ error: 'Tietokannan virhe' });
         }
         res.json(users);
     });
@@ -284,7 +284,7 @@ app.post('/api/like', authenticateToken, (req, res) => {
         [req.user.id, userId],
         function(err) {
             if (err) {
-                return res.status(500).json({ error: 'Database error' });
+                return res.status(500).json({ error: 'Tietokannan virhe' });
             }
 
             // Check if it's a mutual like
@@ -293,7 +293,7 @@ app.post('/api/like', authenticateToken, (req, res) => {
                 [userId, req.user.id],
                 (err, mutualLike) => {
                     if (err) {
-                        return res.status(500).json({ error: 'Database error' });
+                        return res.status(500).json({ error: 'Tietokannan virhe' });
                     }
 
                     if (mutualLike) {
@@ -306,7 +306,7 @@ app.post('/api/like', authenticateToken, (req, res) => {
                             [user1Id, user2Id],
                             function(err) {
                                 if (err) {
-                                    return res.status(500).json({ error: 'Database error' });
+                                    return res.status(500).json({ error: 'Tietokannan virhe' });
                                 }
                                 res.json({ match: true, matchId: this.lastID });
                             }
@@ -324,7 +324,7 @@ app.post('/api/pass', authenticateToken, (req, res) => {
     const { userId } = req.body;
 
     if (!userId) {
-        return res.status(400).json({ error: 'User ID is required' });
+        return res.status(400).json({ error: 'Käyttäjä ID vaaditaan' });
     }
 
     // Insert a "pass" as a like with negative value or separate table
@@ -334,7 +334,7 @@ app.post('/api/pass', authenticateToken, (req, res) => {
         [req.user.id, userId],
         function(err) {
             if (err) {
-                return res.status(500).json({ error: 'Database error' });
+                return res.status(500).json({ error: 'Tietokannan virhe' });
             }
             res.json({ success: true });
         }
@@ -365,7 +365,7 @@ app.get('/api/matches', authenticateToken, (req, res) => {
 
     db.all(query, [req.user.id, req.user.id, req.user.id], (err, matches) => {
         if (err) {
-            return res.status(500).json({ error: 'Database error' });
+            return res.status(500).json({ error: 'Tietokannan virhe' });
         }
         res.json(matches);
     });
@@ -381,10 +381,10 @@ app.get('/api/messages/:matchId', authenticateToken, (req, res) => {
         [matchId, req.user.id, req.user.id],
         (err, match) => {
             if (err) {
-                return res.status(500).json({ error: 'Database error' });
+                return res.status(500).json({ error: 'Tietokannan virhe' });
             }
             if (!match) {
-                return res.status(403).json({ error: 'Access denied' });
+                return res.status(403).json({ error: 'Pääsy kielletty' });
             }
 
             // Get messages
@@ -403,7 +403,7 @@ app.get('/api/messages/:matchId', authenticateToken, (req, res) => {
 
             db.all(query, [matchId], (err, messages) => {
                 if (err) {
-                    return res.status(500).json({ error: 'Database error' });
+                    return res.status(500).json({ error: 'Tietokannan virhe' });
                 }
                 res.json(messages);
             });
@@ -415,7 +415,7 @@ app.post('/api/messages', authenticateToken, (req, res) => {
     const { matchId, content } = req.body;
 
     if (!matchId || !content) {
-        return res.status(400).json({ error: 'Match ID and content are required' });
+        return res.status(400).json({ error: 'Match ID ja sisältö vaaditaan' });
     }
 
     // Verify user is part of this match
@@ -424,10 +424,10 @@ app.post('/api/messages', authenticateToken, (req, res) => {
         [matchId, req.user.id, req.user.id],
         (err, match) => {
             if (err) {
-                return res.status(500).json({ error: 'Database error' });
+                return res.status(500).json({ error: 'Tietokannan virhe' });
             }
             if (!match) {
-                return res.status(403).json({ error: 'Access denied' });
+                return res.status(403).json({ error: 'Pääsy kielletty' });
             }
 
             // Insert message
@@ -436,7 +436,7 @@ app.post('/api/messages', authenticateToken, (req, res) => {
                 [matchId, req.user.id, content],
                 function(err) {
                     if (err) {
-                        return res.status(500).json({ error: 'Database error' });
+                        return res.status(500).json({ error: 'Tietokannan virhe' });
                     }
 
                     const message = {
@@ -459,20 +459,20 @@ app.post('/api/messages', authenticateToken, (req, res) => {
 
 // Socket.io for real-time chat
 io.on('connection', (socket) => {
-    console.log('User connected:', socket.id);
+    console.log('Käyttäjä yhdistyi:', socket.id);
 
     socket.on('join_match', (matchId) => {
         socket.join(`match_${matchId}`);
-        console.log(`User ${socket.id} joined match ${matchId}`);
+        console.log(`Käyttäjä ${socket.id} liittyi matchiin ${matchId}`);
     });
 
     socket.on('leave_match', (matchId) => {
         socket.leave(`match_${matchId}`);
-        console.log(`User ${socket.id} left match ${matchId}`);
+        console.log(`Käyttäjä ${socket.id} jätti matchin ${matchId}`);
     });
 
     socket.on('disconnect', () => {
-        console.log('User disconnected:', socket.id);
+        console.log('Käyttäjä lopetti:', socket.id);
     });
 });
 
@@ -499,7 +499,7 @@ app.get('/chat/:matchId', (req, res) => {
 
 // Start server
 server.listen(PORT, () => {
-    console.log(`FriendFinder server running on port ${PORT}`);
+    console.log(`Kaverit sivusto on käynnissä portissa ${PORT}`);
 });
 
 // package.json

@@ -5,7 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discover - FriendFinder</title>
+    <link rel="icon" href="/accessories/media/favicon.ico" type="image/x-icon">
+    <title>Löydä - Kaverit</title>
     <style>
         * {
             margin: 0;
@@ -41,6 +42,11 @@
             color: #667eea;
             margin-bottom: 10px;
         }
+	  .logo-img {
+	    width: 20rem;
+	    height: auto;
+	  }
+
 
         .nav {
             display: flex;
@@ -306,18 +312,20 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="logo">💫 FriendFinder</div>
+	<div class="logo">
+	  <img src="/accessories/media/logo.png" alt="Kaverit logo" class="logo-img">
+	</div>
             <div class="nav">
-                <a href="/discover" class="active">Discover</a>
-                <a href="/matches">Matches</a>
-                <a href="/profile">Profile</a>
-                <a href="#" onclick="logout()">Logout</a>
+                <a href="/discover" class="active">Löydä</a>
+                <a href="/matches">Matchit</a>
+                <a href="/profile">Tili</a>
+                <a href="#" onclick="logout()">Kirjaudu ulos</a>
             </div>
         </div>
 
         <div class="loading" id="loading">
             <div class="spinner"></div>
-            <p>Finding people for you...</p>
+            <p>Etsitään kavereita...</p>
         </div>
 
         <div class="card-stack" id="cardStack" style="display: none;">
@@ -325,9 +333,9 @@
         </div>
 
         <div class="no-more-cards" id="noMoreCards" style="display: none;">
-            <h3>🎉 All caught up!</h3>
+            <h3>🎉 Kaikki kaverit löydetty!</h3>
             <p>Check back later for more people to discover.</p>
-            <button onclick="loadUsers()" class="match-btn" style="margin-top: 15px;">Refresh</button>
+            <button onclick="loadUsers()" class="match-btn" style="margin-top: 15px;">Päivitä</button>
         </div>
 
         <div class="action-buttons" id="actionButtons" style="display: none;">
@@ -339,10 +347,10 @@
     <!-- Match Modal -->
     <div class="match-modal" id="matchModal">
         <div class="match-content">
-            <div class="match-title">🎉 It's a Match!</div>
-            <div class="match-message">You and <span id="matchName"></span> liked each other!</div>
-            <button class="match-btn" onclick="closeMatchModal()">Keep Swiping</button>
-            <button class="match-btn" onclick="goToMatches()" style="margin-left: 10px;">View Matches</button>
+            <div class="match-title">🎉 Se olisi Match!</div>
+            <div class="match-message">Sinä ja <span id="matchName"></span> Swippasitte toisianne!</div>
+            <button class="match-btn" onclick="closeMatchModal()">Jatka Swippaamista</button>
+            <button class="match-btn" onclick="goToMatches()" style="margin-left: 10px;">Katso Matchit</button>
         </div>
     </div>
 
@@ -386,7 +394,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to load users');
+                    throw new Error('Kavereiden etsintä epäonnistui');
                 }
 
                 users = await response.json();
@@ -437,8 +445,8 @@
                     </div>
                     <div class="card-info">
                         <div class="card-name">${user.name}</div>
-                        <div class="card-age">${user.age} years old</div>
-                        <div class="card-bio">${user.bio || 'No bio yet'}</div>
+                        <div class="card-age">${user.age}-vuotta vanha</div>
+                        <div class="card-bio">${user.bio || 'Ei bioa'}</div>
                     </div>
                 </div>
                 <div class="swipe-hint" id="swipeHint${user.id}"></div>
@@ -491,10 +499,10 @@
             if (Math.abs(deltaX) > 50) {
                 hint.classList.add('show');
                 if (deltaX > 0) {
-                    hint.textContent = '❤️ Like';
+                    hint.textContent = '❤️ Tykkää';
                     hint.className = 'swipe-hint show like';
                 } else {
-                    hint.textContent = '✕ Pass';
+                    hint.textContent = '✕ Ohita';
                     hint.className = 'swipe-hint show pass';
                 }
             } else {
