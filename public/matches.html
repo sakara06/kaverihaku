@@ -1,0 +1,360 @@
+
+
+<!-- public/matches.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matches - FriendFinder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            min-height: 500px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: background-color 0.3s;
+        }
+
+        .nav a:hover, .nav a.active {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .matches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .match-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .match-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            border-color: #667eea;
+        }
+
+        .match-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            overflow: hidden;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .match-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-placeholder {
+            font-size: 2rem;
+            color: #ccc;
+        }
+
+        .match-name {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .match-age {
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .match-date {
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        .no-matches {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .no-matches h3 {
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        .no-matches p {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .discover-btn {
+            padding: 12px 24px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.3s;
+        }
+
+        .discover-btn:hover {
+            background: #5a6fd8;
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 300px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .match-stats {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .stats-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stats-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+                margin: 10px;
+            }
+
+            .matches-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">💫 FriendFinder</div>
+            <div class="nav">
+                <a href="/discover">Discover</a>
+                <a href="/matches" class="active">Matches</a>
+                <a href="/profile">Profile</a>
+                <a href="#" onclick="logout()">Logout</a>
+            </div>
+        </div>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading your matches...</p>
+        </div>
+
+        <div id="matchesContent" style="display: none;">
+            <div class="match-stats" id="matchStats">
+                <div class="stats-number" id="matchCount">0</div>
+                <div class="stats-label">Total Matches</div>
+            </div>
+
+            <div class="matches-grid" id="matchesGrid">
+                <!-- Matches will be dynamically inserted here -->
+            </div>
+        </div>
+
+        <div class="no-matches" id="noMatches" style="display: none;">
+            <h3>🔍 No matches yet</h3>
+            <p>Start swiping to find people who are interested in connecting with you!</p>
+            <a href="/discover" class="discover-btn">Start Discovering</a>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '';
+
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = '/';
+                return false;
+            }
+            return token;
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '/';
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diffTime = Math.abs(now - date);
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            if (diffDays === 0) {
+                return 'Today';
+            } else if (diffDays === 1) {
+                return 'Yesterday';
+            } else if (diffDays < 7) {
+                return `${diffDays} days ago`;
+            } else {
+                return date.toLocaleDateString();
+            }
+        }
+
+        function createMatchCard(match) {
+            const card = document.createElement('div');
+            card.className = 'match-card';
+            card.onclick = () => openChat(match.match_id, match.name);
+
+            card.innerHTML = `
+                <div class="match-photo">
+                    ${match.photo ? 
+                        `<img src="/uploads/${match.photo}" alt="${match.name}">` : 
+                        '<div class="photo-placeholder">👤</div>'
+                    }
+                </div>
+                <div class="match-name">${match.name}</div>
+                <div class="match-age">${match.age} years old</div>
+                <div class="match-date">Matched ${formatDate(match.created_at)}</div>
+            `;
+
+            return card;
+        }
+
+        function openChat(matchId, name) {
+            window.location.href = `/chat/${matchId}`;
+        }
+
+        async function loadMatches() {
+            const token = checkAuth();
+            if (!token) return;
+
+            document.getElementById('loading').style.display = 'flex';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/matches`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load matches');
+                }
+
+                const matches = await response.json();
+
+                document.getElementById('loading').style.display = 'none';
+
+                if (matches.length === 0) {
+                    document.getElementById('noMatches').style.display = 'block';
+                } else {
+                    document.getElementById('matchCount').textContent = matches.length;
+                    document.getElementById('matchesContent').style.display = 'block';
+
+                    const matchesGrid = document.getElementById('matchesGrid');
+                    matchesGrid.innerHTML = '';
+
+                    matches.forEach(match => {
+                        const matchCard = createMatchCard(match);
+                        matchesGrid.appendChild(matchCard);
+                    });
+                }
+
+            } catch (error) {
+                console.error('Error loading matches:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('noMatches').style.display = 'block';
+            }
+        }
+
+        // Load matches on page load
+        loadMatches();
+    </script>
+</body>
+</html>

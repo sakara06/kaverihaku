@@ -1,0 +1,529 @@
+
+
+<!-- public/chat.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat - FriendFinder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            margin-right: 15px;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .chat-user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-user-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 12px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-user-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-placeholder {
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .chat-user-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.sent {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+
+        .message.received {
+            align-self: flex-start;
+            background: white;
+            color: #333;
+            border-bottom-left-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        .chat-input-container {
+            background: white;
+            border-top: 1px solid #eee;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 2px solid #e1e1e1;
+            border-radius: 25px;
+            padding: 12px 20px;
+            font-size: 16px;
+            resize: none;
+            max-height: 100px;
+            min-height: 44px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-messages {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .no-messages {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        .no-messages h3 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .typing-indicator {
+            align-self: flex-start;
+            background: white;
+            border-radius: 18px;
+            padding: 12px 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ccc;
+            animation: typingAnimation 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingAnimation {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .message {
+                max-width: 85%;
+            }
+            
+            .chat-input-container {
+                padding: 12px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-header">
+        <button class="back-btn" onclick="goBack()">←</button>
+        <div class="chat-user-info">
+            <div class="chat-user-photo" id="chatUserPhoto">
+                <div class="photo-placeholder">👤</div>
+            </div>
+            <div class="chat-user-name" id="chatUserName">Loading...</div>
+        </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+        <div class="loading-messages">
+            <div class="spinner"></div>
+        </div>
+    </div>
+
+    <div class="chat-input-container">
+        <textarea 
+            class="chat-input" 
+            id="messageInput" 
+            placeholder="Type a message..." 
+            rows="1"
+        ></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const API_BASE = '';
+        const socket = io();
+        let matchId = null;
+        let currentUser = null;
+
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            if (!token || !user) {
+                window.location.href = '/';
+                return false;
+            }
+            currentUser = JSON.parse(user);
+            return token;
+        }
+
+        function goBack() {
+            window.location.href = '/matches';
+        }
+
+        function getMatchIdFromUrl() {
+            const pathParts = window.location.pathname.split('/');
+            return pathParts[pathParts.length - 1];
+        }
+
+        function formatMessageTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function createMessageElement(message, isOwn) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isOwn ? 'sent' : 'received'}`;
+            
+            messageDiv.innerHTML = `
+                <div class="message-content">${message.content}</div>
+                <div class="message-time">${formatMessageTime(message.created_at)}</div>
+            `;
+
+            return messageDiv;
+        }
+
+        function scrollToBottom() {
+            const chatMessages = document.getElementById('chatMessages');
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function loadMessages() {
+            const token = checkAuth();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/messages/${matchId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load messages');
+                }
+
+                const messages = await response.json();
+                const chatMessages = document.getElementById('chatMessages');
+                
+                if (messages.length === 0) {
+                    chatMessages.innerHTML = `
+                        <div class="no-messages">
+                            <h3>👋 Start the conversation!</h3>
+                            <p>Say hello to break the ice.</p>
+                        </div>
+                    `;
+                } else {
+                    chatMessages.innerHTML = '';
+                    messages.forEach(message => {
+                        const isOwn = message.sender_id === currentUser.id;
+                        const messageElement = createMessageElement(message, isOwn);
+                        chatMessages.appendChild(messageElement);
+                    });
+                    scrollToBottom();
+                }
+
+            } catch (error) {
+                console.error('Error loading messages:', error);
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = `
+                    <div class="no-messages">
+                        <h3>⚠️ Error loading messages</h3>
+                        <p>Please try refreshing the page.</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function loadMatchInfo() {
+            const token = checkAuth();
+            if (!token) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/matches`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load match info');
+                }
+
+                const matches = await response.json();
+                const match = matches.find(m => m.match_id == matchId);
+
+                if (match) {
+                    document.getElementById('chatUserName').textContent = match.name;
+                    
+                    const photoContainer = document.getElementById('chatUserPhoto');
+                    if (match.photo) {
+                        photoContainer.innerHTML = `<img src="/uploads/${match.photo}" alt="${match.name}">`;
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error loading match info:', error);
+            }
+        }
+
+        async function sendMessage() {
+            const token = checkAuth();
+            if (!token) return;
+
+            const messageInput = document.getElementById('messageInput');
+            const content = messageInput.value.trim();
+            
+            if (!content) return;
+
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            messageInput.disabled = true;
+
+            try {
+                const response = await fetch(`${API_BASE}/api/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        matchId: matchId,
+                        content: content
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to send message');
+                }
+
+                messageInput.value = '';
+                autoResize(messageInput);
+
+            } catch (error) {
+                console.error('Error sending message:', error);
+            } finally {
+                sendBtn.disabled = false;
+                messageInput.disabled = false;
+                messageInput.focus();
+            }
+        }
+
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+        }
+
+        // Socket event listeners
+        socket.on('new_message', (message) => {
+            const chatMessages = document.getElementById('chatMessages');
+            
+            // Remove no messages placeholder if it exists
+            const noMessages = chatMessages.querySelector('.no-messages');
+            if (noMessages) {
+                noMessages.remove();
+            }
+
+            const isOwn = message.sender_id === currentUser.id;
+            const messageElement = createMessageElement(message, isOwn);
+            chatMessages.appendChild(messageElement);
+            scrollToBottom();
+        });
+
+        // Input event listeners
+        document.getElementById('messageInput').addEventListener('input', function() {
+            autoResize(this);
+        });
+
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Initialize chat
+        function initChat() {
+            const token = checkAuth();
+            if (!token) return;
+
+            matchId = getMatchIdFromUrl();
+            if (!matchId) {
+                window.location.href = '/matches';
+                return;
+            }
+
+            // Join socket room
+            socket.emit('join_match', matchId);
+
+            // Load match info and messages
+            loadMatchInfo();
+            loadMessages();
+
+            // Focus input
+            document.getElementById('messageInput').focus();
+        }
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            if (matchId) {
+                socket.emit('leave_match', matchId);
+            }
+        });
+
+        // Initialize
+        initChat();
+    </script>
+</body>
+</html>
